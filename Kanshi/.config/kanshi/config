@@ -1,0 +1,9 @@
+profile default {
+    output * enable
+}
+
+# Example profile: docked (remove '#' to enable and replace eDP-1/DP-1 with your monitor names)
+#profile docked {
+#    output eDP-1 disable
+#    output DP-1 enable
+#}

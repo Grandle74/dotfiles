@@ -3,8 +3,9 @@
 -- #######################################################################################
 
 local terminal = "kitty"
-local fileManager = "nautilus"
+local fileManager = "xdg-open ~"
 local menu = "fuzzel"
+local browser = "flatpak run app.zen_browser.zen"
 local wallpaper_dir = os.getenv("HOME") .. "/Pictures/.HyprPaper/"
 local scripts = os.getenv("HOME") .. "/.config/hypr/scripts/"
 
@@ -18,6 +19,7 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("hyprpaper &")
 	hl.exec_cmd("hypridle &")
 	hl.exec_cmd("~/.local/bin/pypr &")
+	hl.exec_cmd("kanshi &")
 
 	-- Clipboard daemons
 	hl.exec_cmd("wl-paste --type text --watch cliphist store &")
@@ -174,18 +176,11 @@ hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("wlogout"), { description = "Power Me
 hl.bind(mainMod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { description = "Lock Screen" })
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"), { description = "Reload Hyprland Config" })
 
--- Native monitor toggles
-hl.bind(mainMod .. " + SHIFT + D", function()
-	hl.monitor({ output = "eDP-1", disabled = true })
-end, { description = "Disable eDP-1 Monitor" })
-hl.bind(mainMod .. " + D", function()
-	hl.monitor({ output = "eDP-1", disabled = false })
-end, { description = "Enable eDP-1 Monitor" })
-
 -- =========================================================
 -- APPLICATIONS & UTILITIES
 -- =========================================================
 hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal), { description = "Launch Terminal" })
+hl.bind(mainMod .. " + SHIFT + return", hl.dsp.exec_cmd(browser), { description = "Launch Browser" })
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu), { description = "Launch App Menu" })
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("blueman-manager"), { description = "Bluetooth Manager" })
 hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"), { description = "Toggle Telegram Scratchpad" })
