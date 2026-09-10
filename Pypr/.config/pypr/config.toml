@@ -1,0 +1,13 @@
+[pyprland]
+plugins = ["scratchpads"]
+
+[scratchpads.telegram]
+animation = "fromRight"
+command = "flatpak run org.telegram.desktop"
+class = "org.telegram.desktop"
+process_tracking = false
+size = "25% 71%"
+position = "74% 44px"
+unfocus = "hide"
+lazy = true
+

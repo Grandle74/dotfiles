@@ -1,0 +1,237 @@
+#!/usr/bin/env bash
+
+# Respawn / Refresh: kill any existing fuzzel instance when run again
+pkill -x fuzzel 2>/dev/null
+
+strip_ansi() {
+  sed -r 's/\x1B\[[0-9;]*[a-zA-Z]//g'
+}
+
+show_menu() {
+  nmcli dev wifi rescan >/dev/null 2>&1 &
+
+  WIFI_DEV=$(nmcli -t -f DEVICE,TYPE device status | awk -F: '$2=="wifi"{print $1; exit}')
+  ETH_DEV=$(nmcli -t -f DEVICE,TYPE device status | awk -F: '$2=="ethernet"{print $1; exit}')
+  WIFI_STATE=$(nmcli radio wifi)
+
+  signal_icon() {
+    local sig=$1
+    if [ "$sig" -ge 75 ]; then
+      echo "󰤨"
+    elif [ "$sig" -ge 50 ]; then
+      echo "󰤥"
+    elif [ "$sig" -ge 25 ]; then
+      echo "󰤢"
+    else
+      echo "󰤯"
+    fi
+  }
+
+  declare -a D A
+  add() {
+    D+=("$1")
+    A+=("$2")
+  }
+
+  if [ "$WIFI_STATE" = "enabled" ]; then
+    add "󰖩  WiFi: ON — turn off" "wifi_off"
+  else
+    add "󰖪  WiFi: OFF — turn on" "wifi_on"
+  fi
+
+  add "─── LAN ───" "sep"
+  if [ -n "$ETH_DEV" ]; then
+    if nmcli -t -f GENERAL.STATE device show "$ETH_DEV" 2>/dev/null | grep -q "connected"; then
+      IP=$(nmcli -t -f IP4.ADDRESS device show "$ETH_DEV" | head -1 | awk -F[:/] '{print $2}')
+      add "󰈀  Ethernet ✓ ($IP)" "eth_disconnect|$ETH_DEV"
+    else
+      add "󰈀  Ethernet (Disconnected)" "eth_connect|$ETH_DEV"
+    fi
+  else
+    add "󰈀  No Ethernet Device" "sep"
+  fi
+
+  SAVED_CONNS=$(nmcli -t -f NAME,TYPE connection show | awk -F: '$2~/wireless/{print $1}')
+
+  add "─── WiFi Networks ───" "sep"
+
+  declare -A SEEN_SSIDS
+  declare -A SSID_SIG
+  declare -A SSID_SEC
+  declare -A SSID_INUSE
+
+  if [ "$WIFI_STATE" = "enabled" ]; then
+    RAW_WIFI=$(nmcli -t -f IN-USE,SSID,SIGNAL,SECURITY dev wifi list 2>/dev/null)
+
+    if [ -n "$RAW_WIFI" ]; then
+      while IFS= read -r line; do
+        [ -z "$line" ] && continue
+
+        inuse=$(echo "$line" | awk -F':' '{print $1}')
+        ssid=$(echo "$line" | sed -r 's/^([^:]*:){1}//; s/(:[0-9]+:[^:]*)$//' | sed 's/\\:/:/g')
+        signal=$(echo "$line" | awk -F':' '{print $(NF-1)}')
+        security=$(echo "$line" | awk -F':' '{print $NF}')
+
+        [ -z "$ssid" ] && continue
+
+        prev_sig=${SSID_SIG["$ssid"]:- -1}
+        if [ "${signal:-0}" -gt "$prev_sig" ]; then
+          SSID_SIG["$ssid"]="${signal:-0}"
+          SSID_SEC["$ssid"]="$security"
+        fi
+        if [ "$inuse" = "*" ]; then
+          SSID_INUSE["$ssid"]="1"
+        fi
+        SEEN_SSIDS["$ssid"]="1"
+      done <<<"$RAW_WIFI"
+
+      for ssid in "${!SEEN_SSIDS[@]}"; do
+        sig=${SSID_SIG["$ssid"]}
+        sec=${SSID_SEC["$ssid"]}
+        icon=$(signal_icon "$sig")
+
+        is_saved=0
+        if grep -qFx "$ssid" <<<"$SAVED_CONNS"; then
+          is_saved=1
+        fi
+
+        if [ "${SSID_INUSE["$ssid"]:-0}" -eq 1 ]; then
+          add "✓ $icon  $ssid (Connected)" "wifi_connected|$ssid"
+        elif [ "$is_saved" -eq 1 ]; then
+          add "  $icon  $ssid (Saved)" "wifi_saved_nearby|$ssid|$sec"
+        else
+          add "  $icon  $ssid" "wifi_available|$ssid|$sec"
+        fi
+      done
+    else
+      add "  (No WiFi networks found)" "sep"
+    fi
+
+    OOR_HEADER=0
+    while IFS= read -r saved_name; do
+      [ -z "$saved_name" ] && continue
+      if [ -z "${SEEN_SSIDS["$saved_name"]}" ]; then
+        if [ "$OOR_HEADER" -eq 0 ]; then
+          add "─── Saved (Out of Range) ───" "sep"
+          OOR_HEADER=1
+        fi
+        add "󰚰  $saved_name" "wifi_oor|$saved_name"
+      fi
+    done <<<"$SAVED_CONNS"
+  fi
+
+  SELECTION=$(printf '%s\n' "${D[@]}" | fuzzel -d --hide-prompt -w 45 -l 15 --font="Hurmit Nerd Font:size=11")
+  [ -z "$SELECTION" ] && exit 0
+
+  IDX=-1
+  for i in "${!D[@]}"; do [ "${D[$i]}" = "$SELECTION" ] && IDX=$i && break; done
+  [ "$IDX" -eq -1 ] && exit 0
+
+  ACTION_STR="${A[$IDX]}"
+  TYPE=$(echo "$ACTION_STR" | cut -d'|' -f1)
+  PARAM1=$(echo "$ACTION_STR" | cut -d'|' -f2)
+  PARAM2=$(echo "$ACTION_STR" | cut -d'|' -f3-)
+
+  case "$TYPE" in
+  sep) show_menu ;;
+  wifi_off)
+    nmcli radio wifi off
+    notify-send "Network" "WiFi turned off"
+    exit 0
+    ;;
+  wifi_on)
+    nmcli radio wifi on
+    notify-send "Network" "Turning WiFi on..."
+    sleep 1.5
+    show_menu
+    ;;
+  eth_disconnect)
+    nmcli device disconnect "$PARAM1"
+    notify-send "Network" "Ethernet disconnected"
+    show_menu
+    ;;
+  eth_connect)
+    nmcli device connect "$PARAM1"
+    notify-send "Network" "Connecting Ethernet..."
+    show_menu
+    ;;
+  wifi_connected)
+    SSID="$PARAM1"
+    ACT=$(echo -e "1. Disconnect\n2. Forget\n3. Cancel" | fuzzel -d --hide-prompt -w 25 -l 3 --font="Hurmit Nerd Font:size=11")
+    case "$ACT" in
+    *Disconnect*)
+      nmcli device disconnect "$WIFI_DEV" && notify-send "Network" "Disconnected from $SSID"
+      ;;
+    *Forget*)
+      nmcli connection delete "$SSID" && notify-send "Network" "Forgot $SSID"
+      show_menu
+      ;;
+    *Cancel* | "")
+      show_menu
+      ;;
+    esac
+    ;;
+  wifi_saved_nearby)
+    SSID="$PARAM1"
+    ACT=$(echo -e "1. Connect\n2. Forget\n3. Cancel" | fuzzel -d --hide-prompt -w 25 -l 3 --font="Hurmit Nerd Font:size=11")
+    case "$ACT" in
+    *Connect*)
+      nmcli connection up id "$SSID" &
+      notify-send "Network" "Connecting to $SSID..."
+      ;;
+    *Forget*)
+      nmcli connection delete "$SSID" && notify-send "Network" "Forgot $SSID"
+      show_menu
+      ;;
+    *Cancel* | "")
+      show_menu
+      ;;
+    esac
+    ;;
+  wifi_oor)
+    SSID="$PARAM1"
+    ACT=$(echo -e "1. Forget\n2. Cancel" | fuzzel -d --hide-prompt -w 25 -l 2 --font="Hurmit Nerd Font:size=11")
+    case "$ACT" in
+    *Forget*)
+      nmcli connection delete "$SSID" && notify-send "Network" "Forgot $SSID"
+      show_menu
+      ;;
+    *Cancel* | "")
+      show_menu
+      ;;
+    esac
+    ;;
+  wifi_available)
+    SSID="$PARAM1"
+    SEC="$PARAM2"
+    ACT=$(echo -e "1. Connect\n2. Cancel" | fuzzel -d --hide-prompt -w 25 -l 2 --font="Hurmit Nerd Font:size=11")
+    case "$ACT" in
+    *Connect*)
+      if [ -n "$SEC" ] && [ "$SEC" != "--" ]; then
+        PASS=$(echo "" | fuzzel -d --placeholder "Enter Wi-Fi password..." --password -w 35 -l 0 --font="Hurmit Nerd Font:size=11")
+        if [ -n "$PASS" ]; then
+          (
+            nmcli device wifi connect "$SSID" password "$PASS" &&
+              nmcli connection modify "$SSID" connection.autoconnect yes connection.autoconnect-priority 1
+          ) &
+          notify-send "Network" "Connecting to $SSID..."
+        else
+          show_menu
+        fi
+      else
+        (
+          nmcli device wifi connect "$SSID" &&
+            nmcli connection modify "$SSID" connection.autoconnect yes connection.autoconnect-priority 1
+        ) &
+        notify-send "Network" "Connecting to $SSID..."
+      fi
+      ;;
+    *Cancel* | "")
+      show_menu
+      ;;
+    esac
+    ;;
+  esac
+}
+
+show_menu

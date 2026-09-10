@@ -1,0 +1,32 @@
+@define-color background {background};
+@define-color foreground {foreground};
+@define-color cursor {cursor};
+
+/* Base backgrounds */
+@define-color crust {color0};
+@define-color mantle {color0};
+@define-color base {background};
+
+/* Surfaces & Overlays mapped from 16-color palette */
+@define-color surface0 {color0};
+@define-color surface1 {color8};
+@define-color surface2 {color7};
+
+@define-color overlay0 {color7};
+@define-color overlay1 {color15};
+@define-color text {foreground};
+
+/* Richer accent mappings leveraging pywal16 */
+@define-color red {color1};
+@define-color green {color2};
+@define-color yellow {color3};
+@define-color blue {color4};
+@define-color mauve {color5};
+@define-color teal {color6};
+
+@define-color maroon {color9};
+@define-color peach {color11};   /* Vibrant orange for discharging */
+@define-color lavender {color12};
+@define-color pink {color13};
+@define-color sky {color14};
+@define-color rosewater {color15};

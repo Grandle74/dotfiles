@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+DEFAULT_SINK=$(pactl get-default-sink)
+DEFAULT_SRC=$(pactl get-default-source)
+
+declare -a D A
+add() { D+=("$1"); A+=("$2"); }
+
+add "─── Output ───" "sep"
+while IFS= read -r line; do
+  NAME=$(echo "$line" | awk '{print $2}')
+  DESC=$(pactl list sinks | grep -A5 "Name: $NAME" | awk -F': ' '/Description/{print $2}')
+  VOL=$(pactl list sinks | grep -A15 "Name: $NAME" | awk '/Volume:/{print $5; exit}')
+  [ "$NAME" = "$DEFAULT_SINK" ] \
+    && add "✓ 󰕾  $DESC  $VOL" "sink:$NAME" \
+    || add "  󰕾  $DESC  $VOL" "sink:$NAME"
+done < <(pactl list sinks short)
+
+add "─── Input ───" "sep"
+while IFS= read -r line; do
+  NAME=$(echo "$line" | awk '{print $2}')
+  [[ "$NAME" == *monitor* ]] && continue
+  DESC=$(pactl list sources | grep -A5 "Name: $NAME" | awk -F': ' '/Description/{print $2}')
+  [ "$NAME" = "$DEFAULT_SRC" ] \
+    && add "✓ 󰍬  $DESC" "source:$NAME" \
+    || add "  󰍬  $DESC" "source:$NAME"
+done < <(pactl list sources short)
+
+SELECTION=$(printf '%s\n' "${D[@]}" | fuzzel -d --hide-prompt -w 55 -l 12 --font="Hurmit Nerd Font:size=11")
+[ -z "$SELECTION" ] && exit 0
+
+IDX=-1
+for i in "${!D[@]}"; do [ "${D[$i]}" = "$SELECTION" ] && IDX=$i && break; done
+[ "$IDX" -eq -1 ] && exit 0
+
+TYPE="${A[$IDX]%%:*}"; VALUE="${A[$IDX]#*:}"
+
+case "$TYPE" in
+  sep) exit 0 ;;
+  sink)
+    pactl set-default-sink "$VALUE"
+    DESC=$(pactl list sinks | grep -A5 "Name: $VALUE" | awk -F': ' '/Description/{print $2}')
+    notify-send "Sound" "Output → $DESC" ;;
+  source)
+    pactl set-default-source "$VALUE"
+    DESC=$(pactl list sources | grep -A5 "Name: $VALUE" | awk -F': ' '/Description/{print $2}')
+    notify-send "Sound" "Input → $DESC" ;;
+esac

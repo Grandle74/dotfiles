@@ -1,0 +1,107 @@
+{
+  "position": "top",
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock", "custom/pomodoro"],
+  "modules-right": ["custom/recording", "group/tray", "bluetooth", "network", "pulseaudio", "battery", "custom/power", "custom/battery-alert"],
+  
+  "bluetooth": {
+    "format": "<span size='13000' foreground='#f5e0dc'>󰂯 </span>On",
+    "format-disabled": "<span size='13000' foreground='#f5e0dc'>󰂲 </span>Off",
+    "format-off": "<span size='13000' foreground='#f5e0dc'>󰂲 </span>Off",
+    "format-disconnected": "<span size='13000' foreground='#f5e0dc'>󰂯 </span>Disconnected",
+    "format-connected": "<span size='13000' foreground='#f5e0dc'>󰂱 </span>{device_alias}",
+    "format-connected-battery": "<span size='13000' foreground='#f5e0dc'>󰂱 </span>{device_alias} {device_battery_percentage}%",
+    "tooltip-format": "{controller_alias}\t{controller_address}\n\n{num_connections} connected",
+    "tooltip-format-connected": "{controller_alias}\t{controller_address}\n\n{num_connections} connected\n\n{device_enumerate}",
+    "tooltip-format-enumerate-connected": "{device_alias}\t{device_address}",
+    "on-click": "blueman-manager"
+  },
+
+  "hyprland/workspaces": {
+    "disable-scroll": false,
+    "all-outputs": true,
+    "active-only": false,
+    "on-click": "activate",
+    "format": "{name}",
+    "persistent-workspaces": {
+      "*": 1
+    }
+  },
+  "clock": {
+    "format": "<span foreground='#f5c2e7'>   </span>{:%a %d %H:%M}",
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+  },
+  "network": {
+    "format-wifi": "<span size='13000' foreground='#f5e0dc'>  </span>{essid}",
+    "format-ethernet": "<span size='13000' foreground='#f5e0dc'>󰈀  </span>{ipaddr}/{cidr}",
+    "format-linked": "<span size='13000' foreground='#f5e0dc'>󰌙  </span>{ifname} (No IP)",
+    "format-disconnected": "<span size='13000' foreground='#f5e0dc'>󰛵  </span>Disconnected",
+    "format-disabled": "<span size='13000' foreground='#f5e0dc'>󰲛  </span>Disabled",
+    "tooltip-format-wifi": "Signal Strength: {signalStrength}%",
+    "tooltip-format-ethernet": "Interface: {ifname}",
+    "on-click": "~/.config/hypr/scripts/hypr-network"
+  },
+  "pulseaudio": {
+    "format": "{icon}  {volume}%",
+    "format-muted": "",
+    "format-icons": {
+      "default": ["", "", " "]
+    },
+    "on-click": "~/.config/hypr/scripts/hypr-sound",
+    "on-click-right": "pavucontrol -t 4" 
+  },
+  "battery": {
+    "states": {
+      "warning": 30,
+      "critical": 25
+    },
+    "format": "<span size='13000' foreground='#a6e3a1'>{icon} </span> {capacity}%",
+    "format-warning": "<span size='13000' foreground='#B1E3AD'>{icon} </span> {capacity}%",
+    "format-critical": "<span size='13000' foreground='#E38C8F'>{icon} </span> {capacity}%",
+    "format-charging": "<span size='13000' foreground='#B1E3AD'> </span>{capacity}%",
+    "format-plugged": "<span size='13000' foreground='#B1E3AD'> </span>{capacity}%",
+    "format-full": "<span size='13000' foreground='#B1E3AD'> </span>{capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "tooltip-format": "{time}",
+    "on-click": "powerprofilesctl set performance",
+    "on-click-right": "powerprofilesctl set power-saver"
+  },
+  "group/tray": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 300,
+      "children-class": "tray-child",
+      "transition-left-to-right": false
+    },
+    "modules": ["custom/tray-icon", "tray"]
+  },
+  "custom/tray-icon": {
+    "format": "",
+    "tooltip": false
+  },
+  "tray": {
+    "icon-size": 16,
+    "spacing": 8
+  },
+  "custom/power": {
+    "format": " ",
+    "tooltip": false,
+    "on-click": "wlogout -p layer-shell"
+  },
+  "custom/recording": {
+    "exec": "pgrep -x wf-recorder > /dev/null && echo '{\"text\": \"⏺ REC\", \"class\": \"recording\"}' || echo '{\"text\": \"\", \"class\": \"\"}'",
+    "return-type": "json",
+    "interval": "once",
+    "signal": 1,
+    "on-click": "~/.config/hypr/scripts/hypr-media record",
+    "tooltip": false
+  },
+  "custom/pomodoro": {
+    "exec": "~/.config/hypr/scripts/pomodoro.sh status",
+    "return-type": "json",
+    "interval": 1,
+    "signal": 2,
+    "on-click": "~/.config/hypr/scripts/pomodoro.sh",
+    "tooltip": true
+  }
+}

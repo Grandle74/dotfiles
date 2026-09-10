@@ -1,0 +1,25 @@
+* {
+    font-family: 'Hurmit Nerd Font', monospace;
+    background-image: none;
+    transition: 200ms cubic-bezier(0.1, 1, 0.1, 1);
+}
+window {
+    background-color: rgba({background.rgb}, 0.8);
+}
+button {
+    color: {foreground};
+    background-color: {color0};
+    /* border: 2px solid {color8}; */
+    border-radius: 16px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    margin: 8px;
+    padding: 14px;
+    font-size: 88px;
+}
+button:focus, button:hover {
+    background-color: {color1};
+    border: 10px solid {color4};
+    color: {foreground};
+    outline: none;
+    box-shadow: 0 0 12px {color4};
+}

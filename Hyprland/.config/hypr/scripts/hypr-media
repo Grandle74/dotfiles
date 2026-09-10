@@ -1,0 +1,148 @@
+#!/usr/bin/env bash
+
+ACTION="$1"
+MODE="$2"
+
+REC_DIR="$HOME/Videos/Recordings"
+mkdir -p "$REC_DIR"
+mkdir -p "$HOME/Pictures/Screenshots"
+
+case "$ACTION" in
+screenshot)
+  pkill -x wl-copy 2>/dev/null
+  pkill -x slurp 2>/dev/null
+  TMP_IMG="/tmp/hypr_shot_$(date +%s).png"
+  mkdir -p ~/Pictures/Screenshots
+
+  if [ "$MODE" = "region" ]; then
+    hyprshot -m region --freeze --raw >"$TMP_IMG" 2>/dev/null
+
+    # Exit cleanly if selection was cancelled (empty file)
+    if [ ! -s "$TMP_IMG" ]; then
+      rm -f "$TMP_IMG"
+      exit 0
+    fi
+  else
+    # Frame-synchronized flash: draw white overlay surface directly
+    slurp -f "%x" -b "#ffffff" </dev/null &
+    FLASH_PID=$!
+    grim "$TMP_IMG" && kill -9 $FLASH_PID >/dev/null 2>&1
+  fi
+
+  CHOICE=$(echo -e "1. Copy to Clipboard\n2. Save to Pictures\n3. Copy & Save" | fuzzel -d --hide-prompt -w 25 -l 3)
+
+  case "$CHOICE" in
+  *"Copy to Clipboard"*)
+    wl-copy <"$TMP_IMG"
+    rm -f "$TMP_IMG"
+    notify-send "Screenshot" "Copied to clipboard"
+    ;;
+  *"Save to Pictures"*)
+    DEST="$HOME/Pictures/Screenshots/Screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png"
+    mv "$TMP_IMG" "$DEST"
+    notify-send "Screenshot Saved" "$DEST"
+    ;;
+  *"Copy & Save"*)
+    DEST="$HOME/Pictures/Screenshots/Screenshot_$(date +'%Y-%m-%d_%H-%M-%S').png"
+    wl-copy <"$TMP_IMG"
+    mv "$TMP_IMG" "$DEST"
+    notify-send "Screenshot" "Saved & Copied to clipboard"
+    ;;
+  *)
+    rm -f "$TMP_IMG"
+    ;;
+  esac
+  ;;
+
+record)
+  SCRIPT_PATH=$(readlink -f "$0")
+  YAD_FIFO="/tmp/yad_rec_fifo"
+
+  # IF ALREADY RECORDING -> STOP & PROMPT VIA FUZZEL
+  if pgrep -x "wf-recorder" >/dev/null; then
+    # 1. Update tray icon tooltip instantly
+    if [ -p "$YAD_FIFO" ]; then
+      echo "tooltip:Stopping recording... Processing video." >"$YAD_FIFO"
+    fi
+
+    # 2. Tell wf-recorder to finish writing cleanly
+    pkill -INT -x wf-recorder
+
+    # 3. Wait for process to fully release the video file
+    while pgrep -x "wf-recorder" >/dev/null; do sleep 0.2; done
+
+    # 4. Clean up YAD process & FIFO
+    if [ -f /tmp/yad_rec.pid ]; then
+      kill -9 "$(cat /tmp/yad_rec.pid)" >/dev/null 2>&1
+      rm -f /tmp/yad_rec.pid
+    fi
+    rm -f "$YAD_FIFO"
+    pkill -RTMIN+1 waybar
+
+    # 5. Get saved video path
+    VID_FILE=$(cat /tmp/current_rec_path 2>/dev/null)
+    rm -f /tmp/current_rec_path
+
+    if [ ! -s "$VID_FILE" ]; then
+      notify-send "Screen Recording" "Recording failed or empty."
+      exit 1
+    fi
+
+    # 6. Show Fuzzel choices
+    CHOICE=$(echo -e "1. Save Recording\n2. Copy Path\n3. Delete Recording" | fuzzel -d --hide-prompt -w 25 -l 3)
+
+    case "$CHOICE" in
+    *"Save Recording"*)
+      notify-send "Screen Recording Saved" "$VID_FILE"
+      ;;
+    *"Copy Path to Clipboard"*)
+      echo -n "$VID_FILE" | wl-copy
+      notify-send "Screen Recording" "Path copied to clipboard"
+      ;;
+    *"Delete Recording"*)
+      rm -f "$VID_FILE"
+      notify-send "Screen Recording" "Recording deleted"
+      ;;
+    *)
+      # Default behavior if cancelled (keep saved file)
+      notify-send "Screen Recording Saved" "$VID_FILE"
+      ;;
+    esac
+
+    exit 0
+  fi
+
+  # START RECORDING
+  VID_FILE="$REC_DIR/Recording_$(date +'%Y-%m-%d_%H-%M-%S').mp4"
+  echo "$VID_FILE" >/tmp/current_rec_path
+
+  if [ "$MODE" = "region" ]; then
+    AREA=$(slurp -c "#ff0000" -b "#ff000033")
+    [ -z "$AREA" ] && exit 0
+    wf-recorder -g "$AREA" -f "$VID_FILE" &
+  else
+    wf-recorder -f "$VID_FILE" &
+  fi
+
+  # Prepare named pipe for updating Yad
+  rm -f "$YAD_FIFO"
+  mkfifo "$YAD_FIFO"
+
+  # Launch YAD with FIFO input
+  yad --notification \
+    --listen \
+    --image="media-record" \
+    --text="Recording in progress... Click to stop." \
+    --command="$SCRIPT_PATH record" <"$YAD_FIFO" &
+
+  echo $! >/tmp/yad_rec.pid
+
+  pkill -RTMIN+1 waybar
+  notify-send "Screen Recording" "Recording started..."
+  ;;
+
+*)
+  echo "Usage: $0 {screenshot|record} {full|region}"
+  exit 1
+  ;;
+esac

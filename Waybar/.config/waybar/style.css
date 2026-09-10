@@ -1,0 +1,294 @@
+@import "colors-waybar.css";
+
+* {
+    font-family: 'Hurmit Nerd Font';
+    font-size: 16px;
+    min-height: 0px;
+    font-weight: bold;
+}
+
+/* Waybar Container */
+window#waybar {
+    background: transparent;
+    background-color: alpha(@crust, 0.9);
+    color: @overlay0;
+    transition-property: background-color;
+    transition-duration: 0.1s;
+    /* border-bottom: 1px solid @overlay1; */
+}
+
+#window {
+    margin: 8px;
+    padding-left: 8px;
+    padding-right: 8px;
+}
+
+/* Base Button Style */
+button {
+    box-shadow: inset 0 -3px transparent;
+    border: none;
+    border-radius: 0px;
+}
+
+button:hover {
+    background: inherit;
+    color: @mauve;
+    border-top: 2px solid @mauve;
+}
+
+/* ==============================================================================
+   WORKSPACES CAPSULE
+   ============================================================================== */
+
+#workspaces {
+    background-color: rgba(0, 0, 0, 0.35); /* Translucent sleek pill background */
+    border-radius: 16px;
+    margin: 3px 6px;
+    padding: 2px 4px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#workspaces button {
+    padding: 0px 6px;
+    margin: 0px 2px;
+    color: @overlay0;
+    border: none;
+    box-shadow: none;
+    border-radius: 12px;
+    font-size: 12px;
+    min-width: 18px;
+    
+    transition: background-color 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                color 0.12s ease-out,
+                min-width 0.18s cubic-bezier(0.4, 0, 0.2, 1),
+                padding 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Occupied Workspaces */
+#workspaces button.occupied {
+    color: @text;
+    background-color: rgba(255, 255, 255, 0.12);
+}
+
+/* Empty Workspaces */
+#workspaces button.empty {
+    color: @surface2;
+    background-color: transparent;
+}
+
+/* Active Workspace: Vibrant blue pill with crisp contrast */
+#workspaces button.active {
+    color: @crust;
+    background-color: @blue;
+    border-radius: 12px;
+    font-weight: bold;
+    min-width: 30px;
+    padding: 0px 10px;
+}
+
+/* Subtle Hover States */
+#workspaces button:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    color: @rosewater;
+}
+
+#workspaces button.active:hover {
+    background-color: @sky;
+    color: @crust;
+}
+
+/* Urgent Attention State */
+#workspaces button.urgent {
+    color: @crust;
+    background-color: @red;
+    border-radius: 12px;
+}
+
+/* ==============================================================================
+   UNIFIED STATUS MODULES
+   ============================================================================== */
+
+#network,
+#bluetooth,
+#pulseaudio,
+#battery,
+#clock,
+#custom-power,
+#custom-tray-icon,
+#tray,
+#cpu,
+#memory,
+#disk,
+#temperature,
+#backlight,
+#wireplumber,
+#mode,
+#scratchpad {
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 4px;
+    margin-right: 4px;
+    padding-left: 6px;
+    padding-right: 6px;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Module Specific Colors */
+#network {
+    color: @yellow;
+    border-bottom-color: @yellow;
+}
+
+#bluetooth {
+    color: @blue;
+    border-bottom-color: @blue;
+}
+
+#pulseaudio {
+    color: @blue;
+    border-bottom-color: @blue;
+}
+
+/* Dynamic Battery Module */
+#battery {
+    color: @green;
+    border-bottom-color: @green;
+}
+
+#battery.good,
+#battery.full {
+    color: @green;
+    border-bottom-color: @green;
+}
+
+#battery.warning {
+    color: #e5a050;
+    border-bottom-color: #e5a050;
+}
+
+#battery.discharging {
+    color: @peach; /* Orange */
+    border-bottom-color: @peach;
+}
+
+#battery.critical:not(.charging) {
+    color: @red;
+    border-bottom-color: @red;
+}
+
+#battery.charging {
+    color: @yellow;
+    border-bottom-color: @yellow;
+}
+
+#battery.plugged {
+    color: @blue;
+    border-bottom-color: @blue;
+}
+
+#clock {
+    color: @maroon;
+    border-bottom-color: @maroon;
+}
+
+#clock.date {
+    color: @mauve;
+    border-bottom-color: @mauve;
+}
+
+/* Red Power Button */
+#custom-power {
+    color: @red;
+    border-bottom-color: @red;
+    margin-right: 4px;
+}
+
+/* Tray & Misc */
+#custom-tray-icon {
+    color: @overlay0;
+}
+
+#custom-tray-icon:hover {
+    color: @pink;
+    border-bottom-color: @pink;
+}
+
+#tray:not(.empty) {
+    color: @mauve;
+    border-bottom-color: @mauve;
+}
+
+#idle_inhibitor {
+    margin-right: 12px;
+    color: #7cb342;
+}
+
+#idle_inhibitor.activated {
+    color: @red;
+}
+
+#custom-vpn {
+    color: @lavender;
+    border-radius: 15px;
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+#custom-recording {
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #ff0000;
+    padding: 2px 10px;
+    border-radius: 4px;
+    margin: 3px 0;
+}
+
+#custom-recording.recording {
+    background-color: #e60000;
+    color: #ffffff;
+    animation-name: blink;
+    animation-duration: 1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@keyframes blink {
+    to {
+        background-color: #990000;
+        color: #cccccc;
+    }
+}
+
+#custom-pomodoro {
+    padding: 0 10px;
+    margin: 3px 4px;
+    border-radius: 4px;
+    font-weight: bold;
+    background-color: #131a1c;
+    transition: all 0.2s ease;
+}
+
+#custom-pomodoro.inactive {
+    padding: 0;
+    margin: 0;
+}
+
+#custom-pomodoro.focus {
+    color: #e06060;
+    border-bottom: 2px solid #e06060;
+}
+#custom-pomodoro.break {
+    color: #a6e3a1;
+    border-bottom: 2px solid #a6e3a1;
+}
+
+/* Bar Edge Adjustments */
+.modules-left>widget:first-child>#workspaces {
+    margin-left: 0px;
+}
+
+.modules-right>widget:last-child>#workspaces {
+    margin-right: 0px;
+}

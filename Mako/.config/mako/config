@@ -1,0 +1,14 @@
+# Core geometry & timing
+max-visible=5
+sort=-time
+default-timeout=3000
+width=320
+height=110
+margin=10
+padding=12,16
+border-size=2
+border-radius=12
+font=Hurmit Nerd Font 10
+
+# Include Pywal colors
+include=~/.cache/wal/colors-mako
