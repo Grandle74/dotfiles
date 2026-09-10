@@ -95,7 +95,7 @@ record)
     *"Save Recording"*)
       notify-send "Screen Recording Saved" "$VID_FILE"
       ;;
-    *"Copy Path to Clipboard"*)
+    *"Copy Path"*)
       echo -n "$VID_FILE" | wl-copy
       notify-send "Screen Recording" "Path copied to clipboard"
       ;;
