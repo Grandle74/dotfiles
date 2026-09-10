@@ -166,110 +166,129 @@ hl.gesture({ fingers = 3, direction = "horizontal", action = "workspace" })
 
 local mainMod = "SUPER"
 
+-- =========================================================
+-- SYSTEM & SESSION
+-- =========================================================
+hl.bind(mainMod .. " + M", hl.dsp.exit(), { description = "Exit Hyprland" })
+hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("wlogout"), { description = "Power Menu (wlogout)" })
+hl.bind(mainMod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { description = "Lock Screen" })
+hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"), { description = "Reload Hyprland Config" })
+
+-- Native monitor toggles
+hl.bind(mainMod .. " + SHIFT + D", function()
+	hl.monitor({ output = "eDP-1", disabled = true })
+end, { description = "Disable eDP-1 Monitor" })
+hl.bind(mainMod .. " + D", function()
+	hl.monitor({ output = "eDP-1", disabled = false })
+end, { description = "Enable eDP-1 Monitor" })
+
+-- =========================================================
+-- APPLICATIONS & UTILITIES
+-- =========================================================
+hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal), { description = "Launch Terminal" })
+hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu), { description = "Launch App Menu" })
+hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("blueman-manager"), { description = "Bluetooth Manager" })
+hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"), { description = "Toggle Telegram Scratchpad" })
+hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(scripts .. "pomodoro.sh"), { description = "Toggle Pomodoro" })
+hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(scripts .. "clipmenu.sh"), { description = "Clipboard Manager" })
+hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(scripts .. "hypr-network"), { description = "Network Manager" })
+hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(scripts .. "hypr-sound"), { description = "Sound Settings" })
+hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd(scripts .. "keybindings.sh"), { description = "Show Keybindings" })
+
+-- =========================================================
+-- AUDIO & MEDIA
+-- =========================================================
 -- Sound through pactl
 hl.bind(
 	"XF86AudioRaiseVolume",
 	hl.dsp.exec_cmd(
 		"pactl set-sink-volume @DEFAULT_SINK@ +10% && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"
-	)
+	),
+	{ description = "Volume Up" }
 )
 hl.bind(
 	"XF86AudioLowerVolume",
 	hl.dsp.exec_cmd(
 		"pactl set-sink-volume @DEFAULT_SINK@ -10% && paplay /usr/share/sounds/freedesktop/stereo/audio-volume-change.oga"
-	)
+	),
+	{ description = "Volume Down" }
 )
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"))
+hl.bind("XF86AudioMute", hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"), { description = "Toggle Audio Mute" })
 
 -- Brightness through brightnessctl
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +5%"))
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"))
+hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +5%"), { description = "Brightness Up" })
+hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { description = "Brightness Down" })
 
--- Key bindings
-hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal))
-hl.bind(mainMod .. " + Q", hl.dsp.window.close())
-hl.bind(mainMod .. " + M", hl.dsp.exit())
-hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu))
-hl.bind(mainMod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"))
-hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("wlogout"))
-hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"))
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"))
-hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(scripts .. "pomodoro.sh"))
-hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(scripts .. "clipmenu.sh"))
-hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(scripts .. "hypr-network"))
-hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("blueman-manager"))
-hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(scripts .. "hypr-sound"))
-
--- Native monitor toggles
-hl.bind(mainMod .. " + SHIFT + D", function()
-	hl.monitor({ output = "eDP-1", disabled = true })
-end)
-hl.bind(mainMod .. " + D", function()
-	hl.monitor({ output = "eDP-1", disabled = false })
-end)
-
+-- =========================================================
+-- SCREENSHOTS & RECORDING
+-- =========================================================
 -- Screenshots (with flash effect & instant-release lock)
-hl.bind("Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot full"))
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot region"))
+hl.bind("Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot full"), { description = "Screenshot (Full)" })
+hl.bind("SHIFT + Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot region"), { description = "Screenshot (Region)" })
 
 -- Screen Recording
-hl.bind(mainMod .. " + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record full"))
-hl.bind(mainMod .. " + SHIFT + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record region"))
+hl.bind(mainMod .. " + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record full"), { description = "Record Screen (Full)" })
+hl.bind(mainMod .. " + SHIFT + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record region"), { description = "Record Screen (Region)" })
 
--- Window & Layout management
-hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo())
-hl.bind(mainMod .. " + E", hl.dsp.layout("togglesplit"))
-hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }))
-hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }))
-
--- Move focus with Win + Arrow Keys
-hl.bind(mainMod .. " + Left", hl.dsp.focus({ direction = "l" }))
-hl.bind(mainMod .. " + Right", hl.dsp.focus({ direction = "r" }))
-hl.bind(mainMod .. " + Up", hl.dsp.focus({ direction = "u" }))
-hl.bind(mainMod .. " + Down", hl.dsp.focus({ direction = "d" }))
-
--- Move active window in dwindle tree with Win + J/I/K/L (J=left, I=up, K=down, L=right)
-hl.bind(mainMod .. " + j", hl.dsp.window.move({ direction = "l" }))
-hl.bind(mainMod .. " + i", hl.dsp.window.move({ direction = "u" }))
-hl.bind(mainMod .. " + k", hl.dsp.window.move({ direction = "d" }))
-hl.bind(mainMod .. " + l", hl.dsp.window.move({ direction = "r" }))
-
--- Toggle Horizontal vs Vertical Split Direction
-hl.bind(mainMod .. " + C", hl.dsp.layout("togglesplit"))
-
--- Wallpapers and Color Scheme
--- Wallpaper & Theme modifiers
+-- =========================================================
+-- THEME & WALLPAPERS
+-- =========================================================
 hl.bind(
 	mainMod .. " + W",
 	hl.dsp.exec_cmd(scripts .. "wall-switch.sh --wall"),
-	{ description = "Switch wallpaperpaper only" }
+	{ description = "Switch Wallpaper Only" }
 )
 hl.bind(
 	mainMod .. " + SHIFT + W",
 	hl.dsp.exec_cmd(scripts .. "wall-switch.sh --theme"),
-	{ description = "Switch color scheme only" }
+	{ description = "Switch Color Scheme Only" }
 )
 hl.bind(
 	mainMod .. " + tab",
 	hl.dsp.exec_cmd(scripts .. "wall-switch.sh --both"),
-	{ description = "Switch wallpaper and extract scheme" }
+	{ description = "Switch Wallpaper and Theme" }
 )
 
--- Switch workspaces with mainMod + [0-9]
-for i = 1, 9 do
-	hl.bind(mainMod .. " + " .. tostring(i), hl.dsp.focus({ workspace = tostring(i) }))
-	hl.bind(mainMod .. " + SHIFT + " .. tostring(i), hl.dsp.window.move({ workspace = tostring(i) }))
-end
-hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = "10" }))
-hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = "10" }))
+-- =========================================================
+-- WINDOW MANAGEMENT & LAYOUT
+-- =========================================================
+hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Close Active Window" })
+hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }), { description = "Toggle Fullscreen" })
+hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), { description = "Toggle Floating" })
+hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo(), { description = "Toggle Pseudo Tiling" })
+hl.bind(mainMod .. " + E", hl.dsp.layout("togglesplit"), { description = "Toggle Layout Split" })
+hl.bind(mainMod .. " + C", hl.dsp.layout("togglesplit"), { description = "Toggle Layout Split" })
 
--- Scroll through existing workspaces with mainMod + scroll
-hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }))
-hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }))
+-- Move focus with Win + Arrow Keys
+hl.bind(mainMod .. " + Left", hl.dsp.focus({ direction = "l" }), { description = "Focus Left" })
+hl.bind(mainMod .. " + Right", hl.dsp.focus({ direction = "r" }), { description = "Focus Right" })
+hl.bind(mainMod .. " + Up", hl.dsp.focus({ direction = "u" }), { description = "Focus Up" })
+hl.bind(mainMod .. " + Down", hl.dsp.focus({ direction = "d" }), { description = "Focus Down" })
+
+-- Move active window in dwindle tree with Win + J/I/K/L (J=left, I=up, K=down, L=right)
+hl.bind(mainMod .. " + j", hl.dsp.window.move({ direction = "l" }), { description = "Move Window Left" })
+hl.bind(mainMod .. " + i", hl.dsp.window.move({ direction = "u" }), { description = "Move Window Up" })
+hl.bind(mainMod .. " + k", hl.dsp.window.move({ direction = "d" }), { description = "Move Window Down" })
+hl.bind(mainMod .. " + l", hl.dsp.window.move({ direction = "r" }), { description = "Move Window Right" })
 
 -- Move/resize windows with mouse bindings
-hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
+hl.bind(mainMod .. " + mouse:272", hl.dsp.window.drag(), { mouse = true, description = "Drag Window" })
+hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, description = "Resize Window" })
+
+-- =========================================================
+-- WORKSPACES
+-- =========================================================
+-- Switch and move workspaces with mainMod + [0-9]
+for i = 1, 9 do
+	hl.bind(mainMod .. " + " .. tostring(i), hl.dsp.focus({ workspace = tostring(i) }), { description = "Switch to Workspace " .. tostring(i) })
+	hl.bind(mainMod .. " + SHIFT + " .. tostring(i), hl.dsp.window.move({ workspace = tostring(i) }), { description = "Move to Workspace " .. tostring(i) })
+end
+hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = "10" }), { description = "Switch to Workspace 10" })
+hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = "10" }), { description = "Move to Workspace 10" })
+
+-- Scroll through existing workspaces with mainMod + scroll
+hl.bind(mainMod .. " + mouse_down", hl.dsp.focus({ workspace = "e+1" }), { description = "Next Workspace" })
+hl.bind(mainMod .. " + mouse_up", hl.dsp.focus({ workspace = "e-1" }), { description = "Previous Workspace" })
 
 -- Native Hyprland Layer Rules for Frosted Glass Effect
 hl.layer_rule({ match = { namespace = "waybar" }, blur = true, ignore_alpha = 0.2 })
