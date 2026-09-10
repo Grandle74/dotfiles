@@ -47,10 +47,18 @@ To get the most out of this rice, ensure the following core packages are install
    cd ~/dotfiles
    ```
 
-2. **Apply configurations:**
-   Use GNU Stow to symlink the configuration folders (excluding media and README):
+2. **Apply configurations (Choose Option A or B):**
+
+   **Option A: GNU Stow (Recommended)**  
+   Symlink the configuration folders. This makes it easier to keep your dotfiles up-to-date:
    ```bash
    stow --adopt !(Wallpapers|MouseCursor|.preview|README.md)
+   ```
+
+   **Option B: Direct Copy**  
+   If you prefer not to use symlinks, copy the directories directly:
+   ```bash
+   cp -r {Fuzzel,Hyprland,Kanshi,Kitty,Mako,Pypr,Wal,Waybar,Wlogout}/.config/* ~/.config/
    ```
 
 3. **Install assets:**
