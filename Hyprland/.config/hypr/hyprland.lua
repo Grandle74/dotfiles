@@ -171,7 +171,7 @@ local mainMod = "SUPER"
 -- =========================================================
 -- SYSTEM & SESSION
 -- =========================================================
-hl.bind(mainMod .. " + M", hl.dsp.exit(), { description = "Exit Hyprland" })
+-- hl.bind(mainMod .. " + M", hl.dsp.exit(), { description = "Exit Hyprland" })
 hl.bind(mainMod .. " + X", hl.dsp.exec_cmd("wlogout"), { description = "Power Menu (wlogout)" })
 hl.bind(mainMod .. " + SHIFT + l", hl.dsp.exec_cmd("hyprlock"), { description = "Lock Screen" })
 hl.bind(mainMod .. " + SHIFT + R", hl.dsp.exec_cmd("hyprctl reload"), { description = "Reload Hyprland Config" })
@@ -183,7 +183,11 @@ hl.bind(mainMod .. " + return", hl.dsp.exec_cmd(terminal), { description = "Laun
 hl.bind(mainMod .. " + SHIFT + return", hl.dsp.exec_cmd(browser), { description = "Launch Browser" })
 hl.bind(mainMod .. " + space", hl.dsp.exec_cmd(menu), { description = "Launch App Menu" })
 hl.bind(mainMod .. " + B", hl.dsp.exec_cmd("blueman-manager"), { description = "Bluetooth Manager" })
-hl.bind(mainMod .. " + T", hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"), { description = "Toggle Telegram Scratchpad" })
+hl.bind(
+	mainMod .. " + T",
+	hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"),
+	{ description = "Toggle Telegram Scratchpad" }
+)
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(scripts .. "pomodoro.sh"), { description = "Toggle Pomodoro" })
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(scripts .. "clipmenu.sh"), { description = "Clipboard Manager" })
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(scripts .. "hypr-network"), { description = "Network Manager" })
@@ -208,7 +212,11 @@ hl.bind(
 	),
 	{ description = "Volume Down" }
 )
-hl.bind("XF86AudioMute", hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"), { description = "Toggle Audio Mute" })
+hl.bind(
+	"XF86AudioMute",
+	hl.dsp.exec_cmd("pactl set-sink-mute @DEFAULT_SINK@ toggle"),
+	{ description = "Toggle Audio Mute" }
+)
 
 -- Brightness through brightnessctl
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl set +5%"), { description = "Brightness Up" })
@@ -219,11 +227,23 @@ hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 5%-"), { des
 -- =========================================================
 -- Screenshots (with flash effect & instant-release lock)
 hl.bind("Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot full"), { description = "Screenshot (Full)" })
-hl.bind("SHIFT + Print", hl.dsp.exec_cmd(scripts .. "hypr-media screenshot region"), { description = "Screenshot (Region)" })
+hl.bind(
+	"SHIFT + Print",
+	hl.dsp.exec_cmd(scripts .. "hypr-media screenshot region"),
+	{ description = "Screenshot (Region)" }
+)
 
 -- Screen Recording
-hl.bind(mainMod .. " + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record full"), { description = "Record Screen (Full)" })
-hl.bind(mainMod .. " + SHIFT + F9", hl.dsp.exec_cmd(scripts .. "hypr-media record region"), { description = "Record Screen (Region)" })
+hl.bind(
+	mainMod .. " + F9",
+	hl.dsp.exec_cmd(scripts .. "hypr-media record full"),
+	{ description = "Record Screen (Full)" }
+)
+hl.bind(
+	mainMod .. " + SHIFT + F9",
+	hl.dsp.exec_cmd(scripts .. "hypr-media record region"),
+	{ description = "Record Screen (Region)" }
+)
 
 -- =========================================================
 -- THEME & WALLPAPERS
@@ -275,8 +295,16 @@ hl.bind(mainMod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true, descr
 -- =========================================================
 -- Switch and move workspaces with mainMod + [0-9]
 for i = 1, 9 do
-	hl.bind(mainMod .. " + " .. tostring(i), hl.dsp.focus({ workspace = tostring(i) }), { description = "Switch to Workspace " .. tostring(i) })
-	hl.bind(mainMod .. " + SHIFT + " .. tostring(i), hl.dsp.window.move({ workspace = tostring(i) }), { description = "Move to Workspace " .. tostring(i) })
+	hl.bind(
+		mainMod .. " + " .. tostring(i),
+		hl.dsp.focus({ workspace = tostring(i) }),
+		{ description = "Switch to Workspace " .. tostring(i) }
+	)
+	hl.bind(
+		mainMod .. " + SHIFT + " .. tostring(i),
+		hl.dsp.window.move({ workspace = tostring(i) }),
+		{ description = "Move to Workspace " .. tostring(i) }
+	)
 end
 hl.bind(mainMod .. " + 0", hl.dsp.focus({ workspace = "10" }), { description = "Switch to Workspace 10" })
 hl.bind(mainMod .. " + SHIFT + 0", hl.dsp.window.move({ workspace = "10" }), { description = "Move to Workspace 10" })
