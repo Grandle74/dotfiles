@@ -121,7 +121,7 @@ hl.config({
 	},
 
 	dwindle = {
-		preserve_split = false,
+		preserve_split = true,
 		force_split = 2,
 	},
 
@@ -276,8 +276,9 @@ hl.bind(mainMod .. " + Q", hl.dsp.window.close(), { description = "Close Active 
 hl.bind(mainMod .. " + F", hl.dsp.window.fullscreen({ action = "toggle" }), { description = "Toggle Fullscreen" })
 hl.bind(mainMod .. " + SHIFT + F", hl.dsp.window.float({ action = "toggle" }), { description = "Toggle Floating" })
 hl.bind(mainMod .. " + SHIFT + P", hl.dsp.window.pseudo(), { description = "Toggle Pseudo Tiling" })
-hl.bind(mainMod .. " + E", hl.dsp.layout("togglesplit"), { description = "Toggle Layout Split" })
-hl.bind(mainMod .. " + C", hl.dsp.layout("togglesplit"), { description = "Toggle Layout Split" })
+hl.bind(mainMod .. " + C", hl.dsp.exec_cmd(
+    "hyprctl dispatch 'hl.dsp.layout(\"togglesplit\")'"
+), { description = "Toggle Split Orientation" })
 
 -- Move focus with Win + Arrow Keys
 hl.bind(mainMod .. " + Left", hl.dsp.focus({ direction = "l" }), { description = "Focus Left" })
