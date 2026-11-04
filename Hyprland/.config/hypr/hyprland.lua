@@ -121,7 +121,7 @@ hl.config({
 	},
 
 	dwindle = {
-		preserve_split = true,
+		preserve_split = false,
 		force_split = 2,
 	},
 
@@ -188,10 +188,15 @@ hl.bind(
 	hl.dsp.exec_cmd("~/.local/bin/pypr toggle telegram"),
 	{ description = "Toggle Telegram Scratchpad" }
 )
+hl.bind(
+	mainMod .. " + S",
+	hl.dsp.exec_cmd("~/.local/bin/pypr toggle session"),
+	{ description = "Toggle Session Scratchpad" }
+)
 hl.bind(mainMod .. " + P", hl.dsp.exec_cmd(scripts .. "pomodoro.sh"), { description = "Toggle Pomodoro" })
 hl.bind(mainMod .. " + V", hl.dsp.exec_cmd(scripts .. "clipmenu.sh"), { description = "Clipboard Manager" })
 hl.bind(mainMod .. " + N", hl.dsp.exec_cmd(scripts .. "hypr-network"), { description = "Network Manager" })
-hl.bind(mainMod .. " + S", hl.dsp.exec_cmd(scripts .. "hypr-sound"), { description = "Sound Settings" })
+hl.bind(mainMod .. " + SHIFT + S", hl.dsp.exec_cmd(scripts .. "hypr-sound"), { description = "Sound Settings" })
 hl.bind(mainMod .. " + SHIFT + K", hl.dsp.exec_cmd(scripts .. "keybindings.sh"), { description = "Show Keybindings" })
 
 -- =========================================================
@@ -328,6 +333,15 @@ hl.window_rule({
 	size = { "25%", "71%" },
 	move = { "74%", "44px" },
 	workspace = "special:scratch_telegram silent",
+})
+
+-- Force Session to always float so Pyprland can manage its scratchpad geometry
+hl.window_rule({
+	match = { class = "Session" },
+	float = true,
+	size = { "25%", "71%" },
+	move = { "74%", "44px" },
+	workspace = "special:scratch_session silent",
 })
 
 -- Compact floating Blueman Manager window

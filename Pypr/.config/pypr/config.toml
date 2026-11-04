@@ -11,3 +11,13 @@ position = "74% 44px"
 unfocus = "hide"
 lazy = true
 
+[scratchpads.session]
+animation = "fromRight"
+command = "/opt/Session/session-desktop"
+class = "Session"
+process_tracking = false
+size = "45% 94%"
+position = "54% 55px"
+unfocus = "hide"
+lazy = true
+
